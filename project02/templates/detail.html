@@ -1,26 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Sparta Vocabulary Notebook</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sparta Vocabulary Notebook</title>
 
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-              crossorigin="anonymous">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
 
-        <!-- Optional JavaScript -->
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-                integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-                crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-                integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-                crossorigin="anonymous"></script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/e95795d6c0.js" crossorigin="anonymous"></script>
+    <style>
+        .wrap {
+            background-color: RGBA(232, 52, 78, 0.2);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
 
-    </head>
-    <body>
-    </body>
+        .banner {
+            width: 100%;
+            height: 200px;
+
+            background-color: white;
+            background-image: url('{{ url_for("static", filename="images/logo_red.png") }}');
+
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+
+            cursor: pointer;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+
+            border: solid 1px gray;
+            border-radius: 10px;
+        }
+
+        span.example {
+            color: gray;
+            font-size: 14px;
+        }
+
+        .btn-sparta {
+            color: #fff;
+            background-color: #e8344e;
+            border-color: #e8344e;
+        }
+
+        .btn-outline-sparta {
+            color: #e8344e;
+            background-color: transparent;
+            background-image: none;
+            border-color: #e8344e;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="banner" onclick="window.location.href = '/'">
+    </div>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end">
+            <div>
+                <h1 id="word" style="display: inline;">{{ word }}</h1>
+                {% if result.pronunciation %}
+                <h5 id="pronunciation" style="display: inline;">/{{ result.pronunciation }}/</h5>
+                {% endif %}
+            </div>
+            <div>
+                <button id="btn-save" class="btn btn-outline-sparta btn-lg">
+                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
+                </button>
+                <button id="btn-delete" class="btn btn-sparta btn-lg">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        {% for definition in result.definitions %}
+        <hr>
+        <div id="definitions">
+            <div style="padding:10px">
+                <i>{{ definition.type }}</i>
+                {% if definition.definition %}
+                    <br>{{ definition.definition.encode('ascii','ignore').decode('utf-8')|safe }}<br>
+                {% endif %}
+                {% if definition.example %}
+                    <span class="example">{{ definition.example.encode('ascii','ignore').decode('utf-8')|safe }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
 </html>

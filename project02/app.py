@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import requests
 app = Flask(__name__)
 
-client = MongoClient('내AWS아이피', 27017, username="아이디", password="비밀번호")
+client = MongoClient('localhost', 27017, username="아이디", password="비밀번호")
 db = client.dbsparta_plus_week2
 
 
@@ -19,6 +19,7 @@ def detail(keyword):
     headers = {'Authorization': 'Token 76603619f99d7907e032157bede528157a590d1e'}
     req = requests.get(url, headers=headers)
     result = req.json()
+    print(result)
     return render_template("detail.html", word=keyword, result=result)
 
 
