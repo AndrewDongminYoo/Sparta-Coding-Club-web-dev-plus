@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/5.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+
+    <title>스파르타코딩클럽 | 나홀로일기장</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Jua', sans-serif;
+        }
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <script>
+        $(document).ready(function(){
+            loadDiary();
+        })
+        const elem = document.querySelector('.grid');
+        const masonry = new Masonry( elem, {
+          // options
+          itemSelector: '.grid-item',
+          columnWidth: 200
+        });
+        function loadDiary() {
+            $.ajax({
+                type: "GET",
+                url: "/diary",
+                data: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response['message']);
+                    let diaries = response['diaries'];
+                    for (let i=0;i<diaries.length;i++) {
+                        let d = diaries[i];
+                        if (d.title && d.file && d.content) {
+                            $("#contentsBox").append(imageCard(d))
+                        } else if (d.content && d.title) {
+                            $("#contentsBox").append(letterCard(d))
+                        } else if (d.content) {
+                            $("#contentsBox").append(quote(d))
+                        }
+                    }
+                }
+            })
+        }
+        function quote({content}) {
+            return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
+            <div class="card p-3"><figure class="p-3 mb-0">
+            <blockquote class="blockquote"><p>${content}</p></blockquote>
+            <figcaption class="blockquote-footer mb-0 text-muted">
+            나에게만 들려주세요.<cite title="Source Title">오늘의 기분</cite>
+            </figcaption></figure></div></div>`;
+        }
+        function letterCard({title, content}) {
+            return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
+            <div class="card text-center"><div class="card-body">
+            <h5 class="card-title">${title}</h5>
+            <p class="card-text">${content}</p><p class="card-text">
+            <small class="text-muted">Last updated 3 mins ago</small></p>
+            </div></div></div>`;
+        }
+        function imageCard({file, title, content}) {
+            return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
+            <div class="card">
+            <img src="${file}" alt="${title}"
+                class="bd-placeholder-img card-img-top">
+            <div class="card-body">
+            <h5 class="card-title">${title}</h5>
+            <p class="card-text">${content}</p>
+            </div></div></div>`;
+        }
+        function writeDiary() {
+            let title = $('#formGroupInput').val();
+            let content = $("#formGroupInput2").val();
+            let file = $('#formFileInput')[0].files[0];
+            let form_data = new FormData();
+
+            if (!content) {
+                alert('컨텐츠를 입력해주세요!!'); return;
+            } else if (file && file.size > 10000000) {
+                alert('파일의 크기가 너무 큽니다.'); return;
+            } else if (file && !file.type.startsWith("image")) {
+                alert('이미지를 업로드 해주세요!!'); return;
+            }
+            file && form_data.append("file_give", file);
+            title && form_data.append("title_give", title);
+            form_data.append("content_give", content);
+            console.log(form_data)
+            $.ajax({
+                type: "POST",
+                url: "/diary",
+                data: form_data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response["message"]);
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <main class="container py-5">
+        <div class="m-4 h-100 p-5 text-white rounded-3 bg-dark">
+            <div class="container">
+                <h1 class="display-4">나만의 다이어리</h1>
+                <p class="lead">오늘의 기분과 느낌, 경험과 생각을 모두 적는 일기장입니다.</p>
+                <form style="max-width: 500px; min-width: 300px;">
+                    <div class="mb-3">
+                        <label for="formFileInput" style="display:none;">file input</label>
+                        <input class="form-control" type="file" id="formFileInput">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="formGroupInput" placeholder="오늘에 이름을 붙인다면">
+                        <label for="formGroupInput" style="display:none;">text input</label>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="formGroupInput2"
+                        placeholder="오늘의 생각 기분 느낌 감성 경험"></textarea>
+                        <label for="formGroupInput2" style="display:none;">text area</label>
+                    </div>
+                    <button type="button" onclick="writeDiary()" class="btn btn-outline-light">작성하기</button>
+                </form>
+            </div>
+        </div>
+        <div class="row grid" data-masonry='{"percentPosition": true }' id="contentsBox">
+        </div>
+    </main>
+    <script src="https://getbootstrap.com/docs/5.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"
+            integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D"
+            crossorigin="anonymous" async></script>
+    <script src="../static/js/masonry.pkgd.js"></script>
+</body>
+</html>
