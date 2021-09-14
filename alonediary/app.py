@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 import os
@@ -22,29 +24,20 @@ def show_diary():
 # API 역할을 하는 부분
 @app.route('/diary', methods=['POST'])
 def save_diary():
-    index = 0
-    if 'title_give' in request.form.keys():
-        title_receive = request.form['title_give']
-    else:
-        title_receive = ""
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y-%m-%d-%H-%M-%S")
+    time = now.strftime("%Y.%m.%d.")
+    title_receive = request.form['title_give']
     content_receive = request.form['content_give']
-    save_to = ""
-    while title_receive and request.files:
-        save_to = f'static/images/{title_receive}{str(index).zfill(4)}.png'
-        if os.path.isfile(save_to):
-            index += 1
-            save_to = f'static/images/{title_receive}{str(index).zfill(4)}.png'
-        else:
-            break
-    if request.files and save_to:
-        file_receive = request.files["file_give"]
-        file_receive.save(save_to)
-    else:
-        file_receive = ""
+    file_receive = request.files["file_give"]
+    ext = file_receive.content_type.split('/')[1]
+    save_to = f'static/images/{timestamp}.{ext}'
+    file_receive.save(save_to)
     doc = {
-       'file': save_to,
-       'title': title_receive,
-       'content': content_receive
+        'file': save_to,
+        'title': title_receive,
+        'content': content_receive,
+        'time': time
     }
     col.insert_one(doc)
     return jsonify({"message": '완료되었습니다.'})

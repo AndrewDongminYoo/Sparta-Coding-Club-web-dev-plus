@@ -41,8 +41,7 @@
         $(document).ready(function(){
             loadDiary();
         })
-        const elem = document.querySelector('.grid');
-        const masonry = new Masonry( elem, {
+        $('#contentsBox').masonry({
           // options
           itemSelector: '.grid-item',
           columnWidth: 200
@@ -60,34 +59,12 @@
                     let diaries = response['diaries'];
                     for (let i=0;i<diaries.length;i++) {
                         let d = diaries[i];
-                        if (d.title && d.file && d.content) {
-                            $("#contentsBox").append(imageCard(d))
-                        } else if (d.content && d.title) {
-                            $("#contentsBox").append(letterCard(d))
-                        } else if (d.content) {
-                            $("#contentsBox").append(quote(d))
-                        }
+                        $("#contentsBox").append(imageCard(d))
                     }
                 }
             })
         }
-        function quote({content}) {
-            return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
-            <div class="card p-3"><figure class="p-3 mb-0">
-            <blockquote class="blockquote"><p>${content}</p></blockquote>
-            <figcaption class="blockquote-footer mb-0 text-muted">
-            나에게만 들려주세요.<cite title="Source Title">오늘의 기분</cite>
-            </figcaption></figure></div></div>`;
-        }
-        function letterCard({title, content}) {
-            return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
-            <div class="card text-center"><div class="card-body">
-            <h5 class="card-title">${title}</h5>
-            <p class="card-text">${content}</p><p class="card-text">
-            <small class="text-muted">Last updated 3 mins ago</small></p>
-            </div></div></div>`;
-        }
-        function imageCard({file, title, content}) {
+        function imageCard({file, title, content, time}) {
             return `<div class="grid-item col-sm-6 col-lg-4 mb-4">
             <div class="card">
             <img src="${file}" alt="${title}"
@@ -95,6 +72,7 @@
             <div class="card-body">
             <h5 class="card-title">${title}</h5>
             <p class="card-text">${content}</p>
+            <p class="card-text"><small class="text-muted">${time}</small></p>
             </div></div></div>`;
         }
         function writeDiary() {
@@ -103,12 +81,12 @@
             let file = $('#formFileInput')[0].files[0];
             let form_data = new FormData();
 
-            if (!content) {
+            if (!(content && file && title)) {
                 alert('컨텐츠를 입력해주세요!!'); return;
             } else if (file && file.size > 10000000) {
                 alert('파일의 크기가 너무 큽니다.'); return;
             } else if (file && !file.type.startsWith("image")) {
-                alert('이미지를 업로드 해주세요!!'); return;
+                alert('이미지 파일로 업로드 해주세요!!'); return;
             }
             file && form_data.append("file_give", file);
             title && form_data.append("title_give", title);
@@ -153,7 +131,7 @@
                 </form>
             </div>
         </div>
-        <div class="row grid" data-masonry='{"percentPosition": true }' id="contentsBox">
+        <div class="row grid" data-masonry='{"itemSelector": ".grid-item", "percentPosition": true }' id="contentsBox">
         </div>
     </main>
     <script src="https://getbootstrap.com/docs/5.1/dist/js/bootstrap.bundle.min.js"></script>
