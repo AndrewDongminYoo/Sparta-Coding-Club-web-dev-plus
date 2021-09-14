@@ -1,19 +1,37 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from pymongo import MongoClient
 import requests
 app = Flask(__name__)
+
+client = MongoClient('내AWS아이피', 27017, username="아이디", password="비밀번호")
+db = client.dbsparta_plus_week2
 
 
 @app.route('/')
 def main():
-    myname = "동민"
-    return render_template("index.html", name=myname)
+    # DB 에서 저장된 단어 찾아서 HTML 에 나타내기
+    return render_template("index.html")
 
 
-@app.route('/detail')
-def detail():
-    response = requests.get('http://openapi.seoul.go.kr:8088/6d4d776b466c656533356a4b4b5872/json/RealtimeCityAir/1/99').json()
-    rows = response['RealtimeCityAir']['row']
-    return render_template("detail.html", rows=rows)
+@app.route('/detail/<keyword>')
+def detail(keyword):
+    url = f'https://owlbot.info/api/v4/dictionary/{keyword}'
+    headers = {'Authorization': 'Token 76603619f99d7907e032157bede528157a590d1e'}
+    req = requests.get(url, headers=headers)
+    result = req.json()
+    return render_template("detail.html", word=keyword, result=result)
+
+
+@app.route('/api/save_word', methods=['POST'])
+def save_word():
+    # 단어 저장하기
+    return jsonify({'result': 'success', 'msg': '단어 저장'})
+
+
+@app.route('/api/delete_word', methods=['POST'])
+def delete_word():
+    # 단어 삭제하기
+    return jsonify({'result': 'success', 'msg': '단어 삭제'})
 
 
 if __name__ == '__main__':
