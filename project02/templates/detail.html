@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>상세페이지</h1>
+    <button onclick="location.href='/'">메인페이지로</button>
+    <ul>
+        {% set gu_name = rows[0]['MSRSTE_NM'] %}
+        {% set gu_mise = rows[0]['IDEX_MVL'] %}
+        <li>{{ gu_name }}: {{ gu_mise }}</li>
+    </ul>
+</body>
+</html>
