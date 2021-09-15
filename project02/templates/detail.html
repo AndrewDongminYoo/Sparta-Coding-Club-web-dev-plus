@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Sparta Vocabulary Notebook</title>
-
+    <meta property="og:title" content="Sparta Vocabulary Notebook"/>
+    <meta property="og:description" content="mini project for Web Plus"/>
+    <meta property="og:image" content="{{ url_for('static', filename='images/logo_red.png') }}"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
           crossorigin="anonymous">
-
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -21,74 +25,123 @@
             crossorigin="anonymous"></script>
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/e95795d6c0.js" crossorigin="anonymous"></script>
-    <style>
-        .wrap {
-            background-color: RGBA(232, 52, 78, 0.2);
-            min-height: 100vh;
-            padding-bottom: 50px;
+    <script>
+        function keypush() {
+            if (event.key === 'Enter') {
+                find_word()
+            }
         }
 
-        .banner {
-            width: 100%;
-            height: 200px;
 
-            background-color: white;
-            background-image: url('{{ url_for("static", filename="images/logo_red.png") }}');
-
-            background-position: center;
-            background-size: contain;
-            background-repeat: no-repeat;
-
-            cursor: pointer;
+        $(document).ready(function () {
+            {% if status == 'old' %}
+                $("#btn-save").hide()
+                get_examples()
+            {% else %}
+                $("#btn-delete").hide()
+            {% endif %}
+        })
+        let word = location.pathname.split("/")[2]
+        function save_word() {
+            $.ajax({
+                type: "POST",
+                url: `/api/save_word`,
+                data: {
+                    word: word,
+                    definition: "{{ result.definitions[0].definition }}"
+                },
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.href = `/detail/${word}?status=old`
+                }
+            });
         }
 
-        .container {
-            width: 80%;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: white;
-
-            border: solid 1px gray;
-            border-radius: 10px;
+        function delete_word() {
+            $.ajax({
+                type: "POST",
+                url: `/api/delete_word`,
+                data: {
+                    word: 'word',
+                },
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.href = `/detail/${word}?status=new`
+                }
+            });
         }
 
-        span.example {
-            color: gray;
-            font-size: 14px;
+        function get_examples() {
+            $("#example-list").empty()
+            $.ajax({
+                type: "GET",
+                url: `/api/get_examples?word=${word}`,
+                data: {},
+                success: function (response) {
+                    let examples = response["examples"];
+                    for (let i = 0; i < examples.length; i++) {
+                        let example = examples[i]["example"];
+                        let html_temp = `<li id="ex-${i}">${example}&nbsp;&nbsp;&nbsp;<a
+                            href="javascript:delete_ex(${i})">delete</a></li>`
+                        $("#example-list").append(html_temp)
+                    }
+                }
+            });
         }
 
-        .btn-sparta {
-            color: #fff;
-            background-color: #e8344e;
-            border-color: #e8344e;
+        function add_ex() {
+            let new_ex = $('#new-example').val();
+            if (!new_ex.toLowerCase().includes(word.toLowerCase())) {
+                alert(`the word '${word}' is not included.`);
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: `/api/save_ex`,
+                data: {
+                    word: word,
+                    example: new_ex
+                },
+                success: function (response) {
+                    get_examples();
+                    $('#new-example').val("");
+                }
+            });
         }
 
-        .btn-outline-sparta {
-            color: #e8344e;
-            background-color: transparent;
-            background-image: none;
-            border-color: #e8344e;
+        function delete_ex(i) {
+            console.log("deleting", i)
+            $.ajax({
+                type: "POST",
+                url: `/api/delete_ex`,
+                data: {
+                    word_give: word,
+                    number_give: i
+                },
+                success: function (response) {
+                    get_examples()
+                }
+            });
         }
-    </style>
+
+    </script>
 </head>
 <body>
 <div class="wrap">
-    <div class="banner" onclick="window.location.href = '/'">
-    </div>
+    <div class="banner" onclick="window.location.href='/'"></div>
     <div class="container">
         <div class="d-flex justify-content-between align-items-end">
             <div>
                 <h1 id="word" style="display: inline;">{{ word }}</h1>
                 {% if result.pronunciation %}
-                <h5 id="pronunciation" style="display: inline;">/{{ result.pronunciation }}/</h5>
+                    <h5 id="pronunciation" style="display: inline;">/{{ result.pronunciation }}/</h5>
                 {% endif %}
             </div>
             <div>
-                <button id="btn-save" class="btn btn-outline-sparta btn-lg">
+                <button id="btn-save" onclick="save_word()" class="btn btn-outline-sparta btn-lg">
                     <i class="fa fa-bookmark-o" aria-hidden="true"></i>
                 </button>
-                <button id="btn-delete" class="btn btn-sparta btn-lg">
+                <button id="btn-delete" onclick="delete_word()" class="btn btn-sparta btn-lg">
                     <i class="fa fa-trash" aria-hidden="true"></i>
                 </button>
             </div>
@@ -107,6 +160,16 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+    <div id="examples" class="container">
+        <h3 style="text-align: center;margin-bottom:1rem">Write your own sentences!</h3>
+        <ul id="example-list">
+        </ul>
+        <div class="d-flex justify-content-between" style="margin-left:20px;">
+            <label for="new-example"></label>
+            <input id="new-example" class="form-control form-control-sm" style="margin-right: 0.5rem" onkeydown="keypush()">
+            <button class="btn btn-outline-secondary btn-sm" onclick="add_ex()">add</button>
+        </div>
     </div>
 </div>
 
