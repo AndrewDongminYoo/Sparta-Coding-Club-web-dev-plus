@@ -1,0 +1,34 @@
+body {
+    background-color: RGBA(232, 52, 78, 0.2);
+    min-height: 100vh;
+}
+.section {
+    padding: 1rem 1.5rem;
+    max-width: 750px;
+    margin: auto;
+}
+.title {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 5rem;
+}
+.subtitle {
+    font-size: 2rem;
+    font-family: 'Do Hyeon', sans-serif;
+}
+.is-sparta {
+    color: #e73451 !important;
+    font-weight: 400;
+}
+.button.is-sparta {
+    background-color: #e8344e;
+    border-color: transparent;
+    color: #fff !important;
+}
+.button.is-sparta.is-outlined {
+    background-color: transparent;
+    border-color: #e8344e;
+    color: #e8344e !important;
+}
+.help {
+    color: gray;
+}
