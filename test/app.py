@@ -11,17 +11,15 @@ client = MongoClient('localhost', 27017)
 # client = MongoClient('내 AWS 아이피', 27017, username="아이디", password="비밀번호")
 db = client.dbsparta_plus
 
-
-
-
-
 # 백엔드
 # 생략은 코드가 생략되었다는...
 @app.route('/stock', methods = ['POST'])
 def save_info():
-    info = request.json
-    ##생략
-		return jsonify(stocks)
+    market = request.form.get('market')
+    sector = request.form.get('sector')
+    tag = request.form.get('tag')
+    result = db.strocks.find({"sector": sector, "market": market, "tag": tag}, {'_id': False})
+    return jsonify({'message': '결과가 나왔습니다!', 'result': result})
 
 
 if __name__ == '__main__':
