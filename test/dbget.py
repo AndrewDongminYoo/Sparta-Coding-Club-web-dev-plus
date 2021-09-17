@@ -1,8 +1,9 @@
 from selenium.webdriver import Chrome
 from pymongo import MongoClient
+import requests
 
-driver = Chrome()
-driver.implicitly_wait(3)
+# driver = Chrome()
+# driver.implicitly_wait(3)
 # 파일을 만들어서 그대로 실행시킵니다!!
 client = MongoClient("mongodb://localhost:27017/")
 db = client.dbStock
@@ -34,7 +35,7 @@ stocks = [
     {"name": "리노공업", "code": "058470", "sector": "sector-1", "market": "market-2", "tag": "tag-1"},
     {"name": "DB 하이텍", "code": "000990", "sector": "sector-1", "market": "market-1", "tag": "tag-1"},
     {"name": "솔브레인", "code": "357780", "sector": "sector-1", "market": "market-2", "tag": "tag-1"},
-    {"name": "카카오", "code": "357780", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
+    {"name": "카카오", "code": "035720", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
     {"name": "네이버", "code": "035420", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
     {"name": "아프리카 TV", "code": "067160", "sector": "sector-2", "market": "market-2", "tag": "tag-3"},
     {"name": "키다리스튜디오", "code": "020120", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
@@ -43,18 +44,33 @@ stocks = [
 db.stocks.insert_many(stocks)
 
 
-def get_stock_info(code: str) -> list:
-    url = f"https://finance.naver.com/item/main.nhn?code={code}"
-    driver.get(url)
-    price = driver.find_element_by_css_selector(
-        '#tab_con1 > div:nth-child(4) > table > tbody > tr:nth-child(2) > td > em:nth-child(1)').text
-    si_total = driver.find_element_by_css_selector('#tab_con1 > div.first > table > tbody > tr.strong > td').text
-    per = driver.find_element_by_css_selector('table.per_table > tbody:nth-child(2) > tr > td > *:nth-child(1)').text
-    db.stocks.update_one({"code": code}, {"$set": {"price": price, "capitalization": si_total, "PER": per}})
+# def get_stock_info(code: str) -> list:
+#     url = f"https://finance.naver.com/item/main.nhn?code={code}"
+#     driver.get(url)
+#     price = driver.find_element_by_css_selector(
+#         '#tab_con1 > div:nth-child(4) > table > tbody > tr:nth-child(2) > td > em:nth-child(1)').text
+#     si_total = driver.find_element_by_css_selector('#tab_con1 > div.first > table > tbody > tr.strong > td').text
+#     per = driver.find_element_by_css_selector('table.per_table > tbody:nth-child(2) > tr > td > *:nth-child(1)').text
+#     db.stocks.update_one({"code": code}, {"$set": {"price": price, "capitalization": si_total, "PER": per}})
+#     return list(db.stocks.find({"code": code}, {"_id": False}))
+
+
+def get_stock_info_api(code: str) -> list:
+    url = f'https://m.stock.naver.com/api/stock/{code}/integration'
+    headers = {'accept': 'application/json', 'accept-encoding': 'gzip, deflate, br',
+               'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7', 'origin': 'https://m.stock.naver.com',
+               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'}
+
+    req = requests.get(url, headers=headers)
+    data = req.json()['totalInfos']
+    highPrice = data[2]["value"]
+    accumulatedTradingVolumne = data[4]["value"]
+    marketValue = data[6]["value"]
+    PER = data[10]["value"]
+    db.stocks.update_one({"code": code}, {"$set": {"price": highPrice, "accumulatedTradingVolumne": accumulatedTradingVolumne, "marketValue": marketValue, "PER": PER}})
     return list(db.stocks.find({"code": code}, {"_id": False}))
 
 
 if __name__ == '__main__':
     for stock in stocks:
-        get_stock_info(stock['code'])
-    driver.quit()
+        get_stock_info_api(stock['code'])
