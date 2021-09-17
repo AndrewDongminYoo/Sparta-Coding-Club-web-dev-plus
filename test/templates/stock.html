@@ -25,7 +25,7 @@
             ${keyword}</label></div>`
         }
         $(document).onload(function() {
-            sel0()
+
         })
 
         function sel0() {
@@ -37,21 +37,20 @@
         }
 
         function sel1(num) {
-            form_data['sector'] = num
+            form_data['sector'] = `sector-${num}`
             $("#stocks").empty()
-            $("#stocks").append(radio('반도체와반도체장비'))
-            $("#stocks").append(radio('양방향미디어와서비스'))
-            $("#stocks").append(radio('자동차'))
+            $("#stocks").append(radio('반도체와반도체장비', 1))
+            $("#stocks").append(radio('양방향미디어와서비스', 2))
+            $("#stocks").append(radio('자동차', 3))
             $("#push1").toggleClass('is-hidden')
             $("#push2").toggleClass('is-hidden')
         }
         function sel2() {
-            form_data['tag'] = num
+            form_data['tag'] = `tag-{num}`
             $("#stocks").empty()
-            $("#stocks").append(radio('tag-1'))
-            $("#stocks").append(radio('tag-2'))
-            $("#stocks").append(radio('tag-3'))
-            $("#stocks").append(radio('tag-4'))
+            $("#stocks").append(radio('메모리', 1))
+            $("#stocks").append(radio('플랫폼', 2))
+            $("#stocks").append(radio('전기차', 3))
             $("#push2").toggleClass('is-hidden')
             $("#push3").toggleClass('is-hidden')
         }
@@ -63,7 +62,7 @@
                 type: "POST",
                 url: '/stock',
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({"market": "market-1", "sector": "sector-1", "tag": "tag-1"}),
+                data: JSON.stringify(form_data),
                 success: function (response) {
                     result = response['result']
                     for (let i=0;i<result.length;i++) {
@@ -71,6 +70,9 @@
                     }
                 }
             })
+        }
+        function ref() {
+            location.reload()
         }
     </script>
 </head>
@@ -82,24 +84,12 @@
             </p>
             <hr>
             <div id="stocks">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        코스피
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        코스닥
-                    </label>
-                </div>
             </div>
             <button onclick="sel0()" class="btn btn-primary btn-lg " type="button" id="push0">START</button>
             <button onclick="sel1()" class="btn btn-primary btn-lg is-hidden" type="button" id="push1">NEXT</button>
             <button onclick="sel2()" class="btn btn-primary btn-lg is-hidden" type="button" id="push2">NEXT</button>
             <button onclick="sel3()" class="btn btn-primary btn-lg is-hidden" type="button" id="push3">NEXT</button>
-            <button onclick="sel4()" class="btn btn-primary btn-lg is-hidden" type="button" id="push4">REPLAY</button>
+            <button onclick="ref()" class="btn btn-primary btn-lg is-hidden" type="button" id="push4">REPLAY</button>
         </div>
     </div>
 
