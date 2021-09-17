@@ -24,11 +24,11 @@
             <label class="form-check-label" for="flexRadioDefault1">
             ${keyword}</label></div>`
         }
-        function info_btn({name, code}) {
-            return `<li>${name}<button
+        function info_btn(company) {
+            return `<li>${company.name}<button
             type="button"
-            onclick="info_alert(${code})"
-            class="btn btn-outline-warning"${name}</button></li>`
+            onclick='info_alert("${company.name}")'
+            class="btn btn-outline-warning">${company.name}</button></li>`
         }
 
         function sel0() {
@@ -72,9 +72,10 @@
                 },
                 success: function (response) {
                     let result = response['result']
-                    console.log(result)
+
                     for (let i=0;i<result.length;i++) {
                         $("#stocks").append(info_btn(result[i]))
+                        $.cookie(`${result[i].name}`, JSON.stringify(result[i]))
                     }
                 }
             })
@@ -83,18 +84,14 @@
             location.reload()
         }
 
-        function info_alert(code) {
-            $.ajax({
-                type: "GET",
-                url: '/company',
-                data: {
-                    code: code
-                },
-                success: function (response) {
-                    let {m, n, o} = response['result']
-                    alert(`주가: ${m}\n 시가 총액: ${n}, PER: ${o}`)
-                }
-            })
+        function info_alert(name) {
+            let json = $.cookie(name)
+            let company = JSON.parse(json)
+            let { price, capitalization, PER } = company
+            window.alert(`
+            주가: ${price}
+            시가 총액: ${capitalization}
+            PER: ${PER}`)
         }
 
     </script>

@@ -4,7 +4,7 @@ from pymongo import MongoClient
 client = MongoClient("mongodb://localhost:27017/")
 
 db = client.dbStock
-
+db.codes.delete_many({})
 codes = [
     {"group": "market", "code": "market-1", "name": "코스피"},
     {"group": "market", "code": "market-2", "name": "코스닥"},
@@ -17,7 +17,7 @@ codes = [
 ]
 db.codes.insert_many(codes)
 
-
+db.stocks.delete_many({})
 stocks = [
         {"name": "삼성전자", "code": "005930", "sector":"sector-1", "market": "market-1", "tag": "tag-1"},
         {"name": "SK하이닉스", "code": "000660", "sector":"sector-1", "market": "market-1", "tag": "tag-1"},
@@ -27,8 +27,8 @@ stocks = [
         {"name": "카카오", "code": "357780", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
         {"name": "네이버", "code": "035420", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
         {"name": "아프리카TV", "code": "067160", "sector": "sector-2", "market": "market-2", "tag": "tag-3"},
-        {"name": "자이언트스텝", "code": "289220", "sector": "sector-2", "market": "market-2", "tag": "tag-2"},
         {"name": "키다리스튜디오", "code": "020120", "sector": "sector-2", "market": "market-1", "tag": "tag-2"},
         {"name": "현대차", "code": "005380", "sector": "sector-3", "market": "market-1", "tag": "tag-4"},
  ]
 db.stocks.insert_many(stocks)
+
