@@ -44,7 +44,7 @@
             <figure class="media-left" style="align-self: center">
                 <a class="image is-96x96" href="#">
                     <img alt="profile" class="is-rounded"
-                         src="{{ user_info.profile_pic_real }}">
+                         src="{{ url_for('static', filename=user_info.profile_pic_real ) }}">
                 </a>
             </figure>
             <div class="media-content">
@@ -96,7 +96,7 @@
                                                     <span class="file-label">파일 선택
                                                     </span>
                                                 </span>
-                                                <span id="file-name" class="file-name" style="width:100%;max-width:100%">{{ user_info.profile_pic }}</span>
+                                                <span id="file-name" class="file-name" style=width:100%;max-width:100%;">{{ user_info.profile_pic_real }}</span>
                                             </label>
                                         </div>
 
@@ -134,7 +134,7 @@
         <article class="media">
             <figure class="media-left" style="align-self: center">
                 <a class="image is-32x32" href="/user/{{ user_info.username }}">
-                    <img alt="user" class="is-rounded" src="{{ url_for('static', filename=user_info.profile_pic_real) }}">
+                    <img alt="user" class="is-rounded" src="{{ url_for('static', filename=user_info.profile_pic_real ) }}">
                 </a>
             </figure>
             <div class="media-content">
@@ -185,7 +185,7 @@
             <article class="media">
                 <div class="media-left">
                     <a class="image is-64x64" href="#">
-                        <img alt="user" class="is-rounded" src={{ url_for("static", filename="profile_pics/profile_placeholder.png") }} alt="Image">
+                        <img alt="user" class="is-rounded" src="{{ url_for('static', filename=user_info.profile_pic_real ) }}" alt="Image">
                     </a>
                 </div>
                 <div class="media-content">
