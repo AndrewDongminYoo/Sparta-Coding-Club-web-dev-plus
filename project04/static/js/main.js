@@ -336,6 +336,5 @@ function toggle_like(post_id, type) {
                 $a_like.find("span.like-num").text(num2str(response["count"]))
             }
         })
-
     }
 }

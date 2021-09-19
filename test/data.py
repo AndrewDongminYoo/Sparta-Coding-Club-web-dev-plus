@@ -44,17 +44,6 @@ stocks = [
 db.stocks.insert_many(stocks)
 
 
-# def get_stock_info(code: str) -> list:
-#     url = f"https://finance.naver.com/item/main.nhn?code={code}"
-#     driver.get(url)
-#     price = driver.find_element_by_css_selector(
-#         '#tab_con1 > div:nth-child(4) > table > tbody > tr:nth-child(2) > td > em:nth-child(1)').text
-#     si_total = driver.find_element_by_css_selector('#tab_con1 > div.first > table > tbody > tr.strong > td').text
-#     per = driver.find_element_by_css_selector('table.per_table > tbody:nth-child(2) > tr > td > *:nth-child(1)').text
-#     db.stocks.update_one({"code": code}, {"$set": {"price": price, "capitalization": si_total, "PER": per}})
-#     return list(db.stocks.find({"code": code}, {"_id": False}))
-
-
 def get_stock_info_api(code: str) -> list:
     url = f'https://m.stock.naver.com/api/stock/{code}/integration'
     headers = {'accept': 'application/json', 'accept-encoding': 'gzip, deflate, br',
@@ -64,10 +53,16 @@ def get_stock_info_api(code: str) -> list:
     req = requests.get(url, headers=headers)
     data = req.json()['totalInfos']
     highPrice = data[2]["value"]
-    accumulatedTradingVolumne = data[4]["value"]
+    accumulatedTradingVolume = data[4]["value"]
     marketValue = data[6]["value"]
     PER = data[10]["value"]
-    db.stocks.update_one({"code": code}, {"$set": {"price": highPrice, "accumulatedTradingVolumne": accumulatedTradingVolumne, "marketValue": marketValue, "PER": PER}})
+    set_query = {
+        "price": highPrice,
+        "accumulatedTradingVolume": accumulatedTradingVolume,
+        "capitalization": marketValue,
+        "PER": PER
+    }
+    db.stocks.update_one({"code": code}, {"$set": set_query})
     return list(db.stocks.find({"code": code}, {"_id": False}))
 
 
